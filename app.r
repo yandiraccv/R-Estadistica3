@@ -1,5 +1,6 @@
 library(shiny)
 library(xlsx)
+library(dplyr)
 load(url("https://github.com/Crisben/RC-MCCTH/blob/master/buses1.rdata?raw=true"))
 
 # Define UI for application that draws a histogram
@@ -23,7 +24,11 @@ ui <- fluidPage(
                         selected = "Seleccionar"),
             conditionalPanel("input.selec=='Plot2'",
                              downloadButton("descarga","descargar")
-                             )
+                             ),
+            selectInput("Ano", label = "Seleccion Ano", c(1996:2017), selected = "Seleccionar"),
+            selectInput("variable", "Seleccione la variable a observar", 
+                        choices =c( "Tipo", "Cooperativa") )
+            
             
             
             
@@ -40,7 +45,8 @@ ui <- fluidPage(
                        verbatimTextOutput("Sector")
                        ),
               tabPanel("Plot2",
-                       dataTableOutput("bus")
+                       highchartOutput("graf"),
+                       tableOutput("bus")
                        ),id = "selec"
             )
             )
@@ -84,7 +90,7 @@ server <- function(input, output) {
      mtcars[c(1:bins()),]
    })
    
-   output$bus <- renderDataTable(data)
+   output$bus <- renderTable(dataano())
    
    exportar <- function(datos, file){        
      wb <- createWorkbook(type="xlsx")
@@ -151,11 +157,21 @@ server <- function(input, output) {
        exportar(data, file)}
    )
    
+   dataano <- reactive({
+     data <- data%>%filter(`Año de Fabricacion`==input$Ano)%>%
+                         group_by(get(input$variable)) %>%
+                         summarize(Sector=n())
+     colnames(data)<-c("class", "n")
+     data
+     })
    
+   output$graf <- renderHighchart({
+     hchart(dataano(), "pie", hcaes(x = class, y = n)) %>%
+       hc_add_theme(hc_theme_538())
+   })
    
-   
-   
-   
+   #input <- list()
+   #input$Ano=2017
    
 }
 
