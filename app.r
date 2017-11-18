@@ -1,4 +1,6 @@
 library(shiny)
+library(xlsx)
+load(url("https://github.com/Crisben/RC-MCCTH/blob/master/buses1.rdata?raw=true"))
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -24,7 +26,9 @@ ui <- fluidPage(
             textAreaInput("text",
                           "Ingrese su nombre",placeholder = "ingrese su nombre"),
             selectInput("Sector",label = "Ingrese el sector",choices = c("Sur","Norte","Centro"),
-                        selected = "Seleccionar")
+                        selected = "Seleccionar"),
+        downloadButton("descarga","descargar")
+            
             
             
      ),
@@ -34,7 +38,8 @@ ui <- fluidPage(
             textOutput("nombre"),
             plotOutput("bins"),
             tableOutput("tabla"),
-            verbatimTextOutput("Sector")
+            verbatimTextOutput("Sector"),
+            dataTableOutput("bus")
      )
      # Sidebar with a slider input for number of bins 
    )   
@@ -74,6 +79,78 @@ server <- function(input, output) {
    output$tabla <- renderTable({
      mtcars[c(1:bins()),]
    })
+   
+   output$bus <- renderDataTable(data)
+   
+   exportar <- function(datos, file){        
+     wb <- createWorkbook(type="xlsx")
+     
+     # Define some cell styles
+     # Title and sub title styles
+     TITLE_STYLE <- CellStyle(wb)+ Font(wb,  heightInPoints=16, isBold=TRUE)
+     
+     SUB_TITLE_STYLE <- CellStyle(wb) + Font(wb,  heightInPoints=12,
+                                             isItalic=TRUE, isBold=FALSE)
+     
+     # Styles for the data table row/column names
+     TABLE_ROWNAMES_STYLE <- CellStyle(wb) + Font(wb, isBold=TRUE)
+     
+     TABLE_COLNAMES_STYLE <- CellStyle(wb) + Font(wb, isBold=TRUE) +
+       Alignment(vertical="VERTICAL_CENTER",wrapText=TRUE, horizontal="ALIGN_CENTER") +
+       Border(color="black", position=c("TOP", "BOTTOM"), 
+              pen=c("BORDER_THICK", "BORDER_THICK"))+Fill(foregroundColor = "lightblue", pattern = "SOLID_FOREGROUND")
+     
+     sheet <- createSheet(wb, sheetName = "Información aTM")
+     
+     # Helper function to add titles
+     xlsx.addTitle<-function(sheet, rowIndex, title, titleStyle){
+       rows <- createRow(sheet, rowIndex=rowIndex)
+       sheetTitle <- createCell(rows, colIndex=1)
+       setCellValue(sheetTitle[[1,1]], title)
+       setCellStyle(sheetTitle[[1,1]], titleStyle)
+     }
+     
+     # Add title and sub title into a worksheet
+     xlsx.addTitle(sheet, rowIndex=4, 
+                   title=paste("Fecha:", format(Sys.Date(), format="%Y/%m/%d")),
+                   titleStyle = SUB_TITLE_STYLE)
+     
+     xlsx.addTitle(sheet, rowIndex=5, 
+                   title="Elaborado por: ATM",
+                   titleStyle = SUB_TITLE_STYLE)
+     
+     # Add title
+     xlsx.addTitle(sheet, rowIndex=7, 
+                   paste("Información -", input$data_select),
+                   titleStyle = TITLE_STYLE)
+     
+     # Add a table into a worksheet
+     addDataFrame(datos,
+                  sheet, startRow=9, startColumn=1,
+                  colnamesStyle = TABLE_COLNAMES_STYLE,
+                  rownamesStyle = TABLE_ROWNAMES_STYLE,
+                  row.names = FALSE)
+     
+     # Change column width
+     setColumnWidth(sheet, colIndex=c(1:ncol(datos)), colWidth=20)
+     
+     # image
+     #addPicture("/www/r.png", sheet, scale=0.28, startRow = 1, startColumn = 1)
+     
+     # Save the workbook to a file...
+     saveWorkbook(wb, file)
+   }
+   
+   output$descarga <- downloadHandler(
+     filename = function() { paste("Información ATM.xlsx") },
+     content = function(file) {
+       exportar(data, file)}
+   )
+   
+   
+   
+   
+   
    
    
 }
