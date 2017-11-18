@@ -7,15 +7,9 @@ ui <- fluidPage(
    
   
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("App"),
    fluidRow(
      column(3,
-            "sidebar",
-            
-            
-            helpText("tetete"),
-            
-            
             numericInput("bins",
                         "Number of bins:",
                         min = 1,
@@ -34,13 +28,21 @@ ui <- fluidPage(
      ),
    
      column(9,
-            "main",
-            textOutput("nombre"),
-            plotOutput("bins"),
-            tableOutput("tabla"),
-            verbatimTextOutput("Sector"),
-            dataTableOutput("bus")
-     )
+           tabsetPanel(
+              tabPanel("Plot",
+                       textOutput("nombre"),
+                       plotOutput("bins")
+                       ),
+              tabPanel("Plot1",
+                       tableOutput("tabla"),
+                       verbatimTextOutput("Sector")
+                       ),
+              tabPanel("Plot2",
+                       dataTableOutput("bus")
+                       )
+            )
+            )
+            
      # Sidebar with a slider input for number of bins 
    )   
       # Show a plot of the generated distribution
