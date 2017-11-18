@@ -21,7 +21,9 @@ ui <- fluidPage(
                           "Ingrese su nombre",placeholder = "ingrese su nombre"),
             selectInput("Sector",label = "Ingrese el sector",choices = c("Sur","Norte","Centro"),
                         selected = "Seleccionar"),
-        downloadButton("descarga","descargar")
+            conditionalPanel("input.selec=='Plot2'",
+                             downloadButton("descarga","descargar")
+                             )
             
             
             
@@ -39,7 +41,7 @@ ui <- fluidPage(
                        ),
               tabPanel("Plot2",
                        dataTableOutput("bus")
-                       )
+                       ),id = "selec"
             )
             )
             
