@@ -1,0 +1,64 @@
+--
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+radioButtons("tabla", "Seleccionar tabla", 
+             choices = c("CIAS", "ACCIONISTAS", "REPRESENTANTES"),
+             selected = "CIAS")
+numericInput("n", "Numero de registros", value = 2,min = 1, max = 220092)
+```
+
+### Chart C
+
+```{r}
+n <- reactive(input$n)
+renderText(paste("Numero de registros:", n()))
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+library(DBI)
+library(RPostgreSQL)
+data <- reactive({
+db <- dbConnect(drv=dbDriver("PostgreSQL"), 
+                  dbname = "SC",
+                host = "localhost",port = 5432, 
+                user = "postgres",
+                password = "sintiempo")
+# nombre_tabla <- if(input$tabla=='CIAS') {"companias_15092016"} else{
+#   "accionistas_15092016"
+# }
+nombre_tabla <-switch(input$tabla,
+             "CIAS" = "companias_15092016",
+             "ACCIONISTAS" = "accionistas_15092016",
+             "REPRESENTANTES" = "representantes_15092016")
+
+query <- paste("SELECT * FROM", nombre_tabla, " LIMIT ", n())
+data <- dbGetQuery(db, query)
+dbDisconnect(db)
+data})
+renderTable(data())
+```
+
+
+
