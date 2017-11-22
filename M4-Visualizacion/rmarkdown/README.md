@@ -10,4 +10,4 @@ Ejemplo:
 
 Comentarios: 
 * https://rpubs.com/RUsersGroup-Ecuador/informe
-* https://rpubs.com/RUsersGroup-Ecuador/presentación
+* https://rpubs.com/RUsersGroup-Ecuador/presentacion
