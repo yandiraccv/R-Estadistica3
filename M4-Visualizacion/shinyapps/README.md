@@ -8,4 +8,4 @@ Ejemplo:
 Cristian_Benalcázar.R
 
 Comentario: 
-https://crbdlc.shinyapps.io/reactivos_rusersgroup/
+https://crbdlc.shinyapps.io/cias/
