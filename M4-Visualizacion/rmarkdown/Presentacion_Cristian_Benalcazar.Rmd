@@ -1,0 +1,51 @@
+---
+title: "Ejemplo de Presentación ioslides"
+author: "R Users Group - Ecuador"
+date: "18 de noviembre de 2017"
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+library(highcharter)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+Este es un ejemplo de la presentación que se debe desarrollar como taller del módulo 4 "Visualización y reportería dinámica con R" de la Escuela de R-Estadística v3.
+
+## La presentación debe incluir:
+
+- Introducción al tema a analizar
+- Código relevante de la captura o carga de datos, limpieza y procesamiento, y un detalle breve de los mismos.
+- Gráficos y tablas de resultados
+- Conclusiones
+
+## Carga, limpieza y procesamiento
+
+    codigo relevante
+
+## Detalle breve de datos
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+
+## Resultados
+
+```{r echo=F, comment=F, warning=F}
+data(diamonds, mpg, package = "ggplot2")
+
+hchart(mpg, "scatter", hcaes(x = displ, y = hwy, group = class)) %>%   hc_title(text = "Dispersión diamonds") %>% hc_add_theme(hc_theme_economist())
+```
+
+## Conclusiones
+
+    summary(model)
+
+Como resultado del análisis observamos que ...
+    
+Etc.
