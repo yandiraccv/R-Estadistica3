@@ -5,8 +5,8 @@ Detalles:
 * Se debe publicar el informe y presentación en rpubs.com y agregar el enlace como comentario.
 
 Ejemplo: 
-Informe_Cristian_Benalcázar.Rmd
-Presentación_Cristian_Benalcázar.Rmd
+* Informe_Cristian_Benalcázar.Rmd
+* Presentación_Cristian_Benalcázar.Rmd
 
 Comentarios: 
 * https://rpubs.com/RUsersGroup-Ecuador/informe
