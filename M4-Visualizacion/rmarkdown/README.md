@@ -1,4 +1,4 @@
-## Codigo de informe y presentacion desarrolladas como talleres del módulo 4 "Visualización y reportería dinámica con R" de la Escuela de R-Estadística
+## Codigo de informe y presentacion desarrolladas conmmarkdown como talleres del módulo 4 "Visualización y reportería dinámica con R" de la Escuela de R-Estadística
 
 Detalles:
 * Favor agregar el código del informe y presentación con su nombre dentro del archivo y como nombre del mismo.
@@ -9,5 +9,5 @@ Informe_Cristian_Benalcázar.Rmd
 Presentación_Cristian_Benalcázar.Rmd
 
 Comentarios: 
-https://rpubs.com/RUsersGroup-Ecuador/informe
-https://rpubs.com/RUsersGroup-Ecuador/presentación
+* https://rpubs.com/RUsersGroup-Ecuador/informe
+* https://rpubs.com/RUsersGroup-Ecuador/presentación
