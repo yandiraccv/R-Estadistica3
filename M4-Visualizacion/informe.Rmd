@@ -1,0 +1,358 @@
+---
+title: "RFM Script R"
+output:
+  html_document:
+    df_print: paged
+---
+
+## CARGA DE DATOS
+El código presentado a continuación fué generado para el tratamiento de la base de datos y la creación de las variables Recencia, Frecuencia y Monto para el modelo RFM.
+
+La base de datos inicial, Perfiles.csv, contiene 1031869 individuos y 571 variables, divididas en Local, Frecuencia y Ventas en 52 semanas. Para la carga y tratamiento de la base de datos son necesarios los siguientes paquetes:
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+library(dplyr)
+library(data.table)
+library(ggplot2)
+options(scipen=999)
+memory.limit(size = 5500000)
+```
+
+Las siguientes lineas cargan la base de datos en el objeto Perfiles_S y luego se la divide en los objetos Frecuencia_S, Local_S, Dist_L_S, Venta_S, Rank_S para facilitar el tretamiento.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+Perfiles_S<-fread("Perfiles_S.csv",sep=",",dec=".",header=T)
+Perfiles_S[,1]<-NULL
+colnames(Perfiles_S)
+
+Frecuencia_S<-subset(Perfiles_S,select = colnames(Perfiles_S)[1:53])
+Frecuencia_S<-as.data.frame(Frecuencia_S)
+
+Local_S<-cbind(Perfiles_S[,1],subset(Perfiles_S,select=colnames(Perfiles_S)[54:105]))
+Dist_L_S<-cbind(Perfiles_S[,1],subset(Perfiles_S,select=colnames(Perfiles_S)[106:157]))
+Venta_S<-cbind(Perfiles_S[,1],subset(Perfiles_S,select=colnames(Perfiles_S)[158:673]))
+Rank_S<-cbind(Perfiles_S[,1],subset(Perfiles_S,select=colnames(Perfiles_S)[674:724]))
+```
+
+## TRATAMIENTO DE LA BASE DE DATOS
+# Analisis de Frecuencias de visitas en las 52 semanas y creación de la variable Frecuencia para el modelo RFM
+El siguiente código permite analizar los valores atípicos para cada una de las semanas y calcular la frecuencia de visita para cada cliente en este tiempo.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+no_cero<-function(x){
+  y<-x[x>0]
+  y
+}
+p_ciles<-function(x){
+y<-x[x>0]
+quantile(y,prob=seq(0.1,1,0.1))
+}
+
+Sum_Frec<-as.data.frame(cbind(Frecuencia_S[,1],apply(Frecuencia_S[,-1],MARGIN = 1,sum)))
+colnames(Sum_Frec)<-c("ID_PERSONA","FREC_52")
+boxplot(Sum_Frec$FREC_52)
+
+
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+graf_outl<-function(data_S){
+  l1<-apply(data_S[,-1],MARGIN = 2,no_cero)
+  l2<-list()
+  for(i in 1:length(l1)){
+    l2[i]<-list(cbind(data.frame(l1[[i]]),rep(names(l1)[i],nrow(data.frame(l1[i])))))
+    colnames(l2[[i]])<-c("Val","Sem")
+  }
+  sub_data_vert<-rbindlist(l2)
+  cb<-ggplot(sub_data_vert%>%filter(),aes(x=Sem,y=Val,fill=Sem)) + geom_boxplot() +
+    #stat_summary(fun.y="mean", geom="point", shape=23, size=2, fill="white",show.legend =F) + 
+    guides(fill=F) + labs(x="",y="") + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))+
+    #geom_text(data = means, aes(label = round(values,2)),vjust=-1,size=3.5)+ 
+    #geom_text(aes(label=round(outlier,2)),na.rm=TRUE,size=3.5,colour="blue") +
+    ggtitle(label = "Caja Bigotes")
+  return(cb)
+}
+outs_id<-function(data_S){
+  #data_S<-Venta_S_Gen
+  sem<-list()
+  for(j in 2:ncol(data_S)){
+    sem[j]<-list(cbind(data_S[,1],data_S[,j]))
+  }
+  sem[[1]]<-NULL
+  
+  mc<-list()
+  for(k in 1:length(sem)){
+    mc[k]<-list(sem[[k]][sem[[k]][,2]>0,])
+  }
+  #mc[[16]]<-t(mc[[16]])
+  #mc[[24]]<-t(mc[[24]])
+  
+  out<-list()
+  for(r in 1:length(mc)){
+    if(class(mc[[r]])=="matrix"){out[r]<-list(mc[[r]][is_outlier(mc[[r]][,2]),])}
+    else{out[r]<-list(t(mc[[r]])[is_outlier(t(mc[[r]])[,2]),])}
+  }
+  
+  out_fin<-list()
+  for(s in 1:length(out)){
+    if(class(out[[s]])=="matrix"){
+      out_fin[s]<-list(cbind(out[[s]],rep(colnames(data_S)[-1][s],nrow(out[[s]]))))}
+    else{out_fin[s]<-list(cbind(t(out[[s]]),rep(colnames(data_S)[-1][s],nrow(t(out[[s]])))))}
+  }
+  
+  out_data_s<-as.data.frame(rbindlist(lapply(out_fin,as.data.frame)))
+  colnames(out_data_s)<-c("ID_PERSONA","VALOR","SEMANA")
+  out_data_s$VALOR<-as.character(out_data_s$VALOR)
+  out_data_s$VALOR<-as.numeric(out_data_s$VALOR)
+  summary(out_data_s$VALOR)
+  out_data_s
+}
+
+out_frec_s<-outs_id(Frecuencia_S)
+summary(out_frec_s$VALOR)
+write.csv(out_frec_s,"atipicos_frecuencia_52.csv")
+```
+
+# Análisis de Ventas en las 52 semanas
+De manera análoga a las frecuencias, se analizan las ventas por tipo excluyendo "SUMINISTROS" y "OTROS_CONCEPTOS_Y_SERVICIOS".
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+Venta_SS<-Venta_S%>%select(-contains("SUMINISTROS"),-contains("OTROS_CONCEPTOS_Y_SERVICIOS"))
+
+##Ventas General
+Venta_S_Gen<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_0")))
+summary(Venta_S_Gen[,-1])
+dec_Ventas_Gen<-as.data.frame(apply(Venta_S_Gen[,-1],MARGIN = 2,p_ciles))
+#dec_Ventas_Gen
+cb_v0<-graf_outl(Venta_S_Gen)
+cb_v0
+out_ven_0<-outs_id(Venta_S_Gen)
+write.csv(out_ven_0,"atipicos_ventas_0_52.csv")
+###
+
+##Ventas Abarrottes
+Ventas_S_1<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_ABARROTES")))
+summary(Ventas_S_1[,-1])
+dec_Ventas_S_1<-as.data.frame(apply(Ventas_S_1[,-1],MARGIN = 2,p_ciles))
+cb_vs1<-graf_outl(Ventas_S_1)
+cb_vs1
+out_ven_1<-outs_id(Ventas_S_1)
+write.csv(out_ven_1,"atipicos_ventas_1_52.csv")
+##
+
+##Ventas Alimentos Frescos
+Ventas_S_2<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_ALIMENTOS_FRESCOS")))
+summary(Ventas_S_2[,-1])
+dec_Ventas_S_2<-as.data.frame(apply(Ventas_S_2[,-1],MARGIN = 2,p_ciles))
+cb_vs2<-graf_outl(Ventas_S_2)
+cb_vs2
+out_ven_2<-outs_id(Ventas_S_2)
+write.csv(out_ven_2,"atipicos_ventas_2_52.csv")
+##
+
+##Ventas Limpieza Hogar
+Ventas_S_3<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_LIMPIEZA_HOGAR")))
+summary(Ventas_S_3[,-1])
+dec_Ventas_S_3<-as.data.frame(apply(Ventas_S_3[,-1],MARGIN = 2,p_ciles))
+cb_vs3<-graf_outl(Ventas_S_3)
+cb_vs3
+out_ven_3<-outs_id(Ventas_S_3)
+write.csv(out_ven_2,"atipicos_ventas_3_52.csv")
+##
+
+##Ventas Cuidado Personal
+Ventas_S_4<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_CUIDADO_PERSONAL")))
+summary(Ventas_S_4[,-1])
+dec_Ventas_S_4<-as.data.frame(apply(Ventas_S_4[,-1],MARGIN = 2,p_ciles))
+cb_vs4<-graf_outl(Ventas_S_4)
+cb_vs4
+out_ven_4<-outs_id(Ventas_S_4)
+write.csv(out_ven_4,"atipicos_ventas_4_52.csv")
+##
+
+##Ventas Diversión y Entretenimiento
+Ventas_S_5<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_DIVERSION_Y_ENTRETENIMIENTO")))
+summary(Ventas_S_5[,-1])
+dec_Ventas_S_5<-as.data.frame(apply(Ventas_S_5[,-1],MARGIN = 2,p_ciles))
+cb_vs5<-graf_outl(Ventas_S_5)
+cb_vs5
+out_ven_5<-outs_id(Ventas_S_5)
+write.csv(out_ven_5,"atipicos_ventas_5_52.csv")
+##
+
+##Ventas Mercaderia General
+Ventas_S_6<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_MERCADERIA_GENERAL")))
+summary(Ventas_S_6[,-1])
+dec_Ventas_S_6<-as.data.frame(apply(Ventas_S_6[,-1],MARGIN = 2,p_ciles))
+cb_vs6<-graf_outl(Ventas_S_6)
+cb_vs6
+out_ven_6<-outs_id(Ventas_S_6)
+write.csv(out_ven_6,"atipicos_ventas_6_52.csv")
+##
+
+##Ventas Textiles
+Ventas_S_7<-as.data.frame(Venta_SS%>%select(ID_PERSONA,contains("_TEXTILES")))
+summary(Ventas_S_7[,-1])
+dec_Ventas_S_7<-as.data.frame(apply(Ventas_S_7[,-1],MARGIN = 2,p_ciles))
+cb_vs7<-graf_outl(Ventas_S_7)
+cb_vs7
+out_ven_7<-outs_id(Ventas_S_7)
+write.csv(out_ven_7,"atipicos_ventas_7_52.csv")
+####
+```
+
+# Creación de la variable Monto en las 52 semanas
+Luego de analizadas las ventas, se realiza la suma de estos valores para cada cliente, para obtener el monto final para el modelo RFM.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+####MONTOS####
+####MONTOS VENTAS
+Venta_SS<-as.data.frame(Venta_SS)
+aux_v<-paste0("VENTA_SEMANA_",1:52,"_0")
+Montos_general<-cbind(Venta_SS[,1],apply(Venta_SS[,-c(1,match(aux_v,colnames(Venta_SS)))],1,sum))
+Montos_general<-as.data.frame(Montos_general)
+colnames(Montos_general)<-c("ID_PERSONA","MONTO_52")
+boxplot(Montos_general$MONTO_52)
+```
+
+# Creación de la variable Recencia en las 52 semanas
+La variable Recencia se crea tomando en cuenta que la semana 52 es la más reciente, así, el siguiente código ayuda de manera eficiente a generar el tiempo en días que se demoró cada cliente en realizar su última compra, medida desde la semana 52.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+#####Recencia_S####
+FR<-Frecuencia_S%>%select(-ID_PERSONA)
+#FR<-as.matrix(FR)
+Recen<-function(x,n){
+for(j in 1:nrow(x)){
+  if(x[,1][j]!=0){x[,1][j]<-n*7-j*7+1}
+}
+  return(x)
+}#Calculo recencia por periodo
+
+Recen_n<-function(FR,Frecuencia_n,n){
+  re1<-apply(FR,1,as.data.frame)
+  re12<-lapply(re1,Recen,n)
+  re13<-lapply(re12,FUN = function(x) min(x[,1][x[,1]>0]))
+  Recencia1<-as.numeric(re13)-1
+  Recencia_n<-as.data.frame(cbind(Frecuencia_n$ID_PERSONA,Recencia1))
+  colnames(Recencia_n)<-c("ID_PERSONA","Recencia")
+  Recencia_n
+}#Calculo recencia data frame
+
+FR<-Frecuencia_S%>%select(-ID_PERSONA)
+Recencia_52<-Recen_n(FR,Frecuencia_S,52)
+```
+
+# Modelo RFM
+Cradas las variables Recencia, Frecuencia y Monto para el período analizado, se crea la tabla con estas variables y se adjunta el "ID_PERSONA".
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+RFM<-cbind(Recencia_52,Sum_Frec$FREC_52,Montos_general$MONTO_52)
+colnames(RFM)<-c("ID_PERSONA","Recencia_52","FREC_52","MONTO_52")
+```
+
+Luego se realiza el análisis descriptivo para estas tres variables y se excluyen valores atípicos. Para la variable Monto se mantienen todas las devoluciones y se toma valores menores o iguales a 52000.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+#Recencia
+qplot(x=RFM$Recencia_52,xlab = "Recencia_52",fill=I("lightblue"),binwidth = 10,col=I("black"),main="Distribución Recencia 52")
+qplot(data=data%>%filter(ind=="Recencia_52"),x=ind,y=values,geom="boxplot",color="ind",main="Caja Bigotes Recencia_52")
+summary(RFM$Recencia_52)
+
+#Frecuencia_atip
+qplot(x=RFM$FREC_52,xlab = "Frecuencia_52",fill=I("lightblue"),binwidth = 10,col=I("black"),main="Frecuencia 52 Semanas con Atipicos")
+qplot(data=data%>%filter(ind=="FREC_52"),x=ind,y=values,geom="boxplot",color="ind",main = "Caja Bigotes Frecuencia_52")
+summary(RFM$FREC_52)
+
+#Frecuencia_no_atip
+Frec_rfm<-RFM[!is_outlier(RFM$FREC_52),c(1,3)]
+qplot(x=Frec_rfm$FREC_52,xlab = "Frecuencia_52",fill=I("lightblue"),binwidth = 10,col=I("black"),main="Frecuencia 52 Semanas sin Atipicos")
+summary(Frec_rfm$FREC_52)
+
+#Monto_atip
+qplot(x=RFM$MONTO_52,xlab = "Monto_52",fill=I("lightblue"),binwidth = 10,col=I("black"),main="Monto 52 Semanas con Atipicos")
+qplot(data=data%>%filter(ind=="MONTO_52"),x=ind,y=values,geom="boxplot",color="ind",main = "Caja Bigotes Monto_52")
+summary(RFM$MONTO_52)
+
+#Monto_no_atip
+Monto_rfm<-RFM[RFM$MONTO_52<=52000,c(1,4)]
+#RFM$MONTO_52>-577.6842&RFM$MONTO_52<=52000####No se modifico nada de aqui en adelante 04/07/2017
+qplot(x=Monto_rfm$MONTO_52,xlab = "Monto_52",fill=I("lightblue"),binwidth = 10,col=I("black"),main="Monto 52 Semanas sin Atipicos (<=52000)")
+summary(Monto_rfm$MONTO_52)
+
+RFM_FIN_52<-Reduce(merge,list(RFM[,c(1,2)],Frec_rfm,Monto_rfm))
+```
+
+A continuación se crean los quintiles para cada variable para realizar la segmentación según su calificación RFM.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+quintiles_RFM<-function(Var){
+  #Var<-RFM_FIN_52$Recencia_52
+  #Var<-RFM_FIN_52$FREC_52
+  Var<-RFM_FIN_52$MONTO_52
+  R<-Var[order(Var,decreasing=T)]
+  R_q <- quantile(R,prob=seq(0.2,1,0.2))
+  
+  AR<-matrix(ncol=3,nrow=length(R_q))
+  #AR[1,1]<-0
+  #AR[1,1]<-1
+  AR[1,1]<-min(RFM_FIN_52$MONTO_52)
+  AR[length(R_q),2]<-R_q[length(R_q)]
+  
+  for(i in 1:nrow(AR))
+  {
+    AR[i,2]<-R_q[i]
+    AR[i+1,1]<-R_q[i]+1
+  }
+  #colnames(AR)<-c("De","Hasta","R")
+  #colnames(AR)<-c("De","Hasta","F")
+  colnames(AR)<-c("De","Hasta","M")
+  #AR[,3]<-c(5:1)
+  AR[,3]<-c(1:5)
+  AR
+}
+
+#quin_Rec<-as.data.frame(AR)
+quin_Rec
+#quin_Frec<-as.data.frame(AR)
+quin_Frec
+#quin_Mon<-as.data.frame(AR)
+quin_Mon
+
+RFM_FIN_52$R<-ifelse(RFM_FIN_52$Recencia_52>0&RFM_FIN_52$Recencia_52<=21,5,
+                ifelse(RFM_FIN_52$Recencia_52>21&RFM_FIN_52$Recencia_52<=56,4,
+                       ifelse(RFM_FIN_52$Recencia_52>56&RFM_FIN_52$Recencia_52<=126,3,
+                              ifelse(RFM_FIN_52$Recencia_52>126&RFM_FIN_52$Recencia_52<=217,2,1))))
+
+RFM_FIN_52$Fr<-ifelse(RFM_FIN_52$FREC_52>1&RFM_FIN_52$FREC_52<=3,1,
+                 ifelse(RFM_FIN_52$FREC_52>3&RFM_FIN_52$FREC_52<=5,2,
+                        ifelse(RFM_FIN_52$FREC_52>5&RFM_FIN_52$FREC_52<=10,3,
+                               ifelse(RFM_FIN_52$FREC_52>10&RFM_FIN_52$FREC_52<=23,4,5))))
+
+RFM_FIN_52$M<-ifelse(RFM_FIN_52$MONTO_52>-5870.52370&RFM_FIN_52$MONTO_52<=18.53510,1,
+                ifelse(RFM_FIN_52$MONTO_52>18.53510&RFM_FIN_52$MONTO_52<=45.17764,2,
+                       ifelse(RFM_FIN_52$MONTO_52>45.17764&RFM_FIN_52$MONTO_52<=96.73504,3,
+                              ifelse(RFM_FIN_52$MONTO_52>96.73504&RFM_FIN_52$MONTO_52<=220.75908,4,5))))
+
+```
+
+Finalmente, para realizar la correcta segmentación por calificación RFM, se realiza un Analisis de Componentes Principales, mismo que da como resultado una variable "Score", la cual es dividida en deciles para obtener la mejor segmentación de clientes.
+```{r,results='hide',echo=T,message=FALSE,eval=FALSE}
+###ACP####
+mydata<-RFM_FIN_52[,c("R","Fr","M")]
+mcor_rfm<-cor(mydata)
+
+library(psych)
+fa.parallel(mydata, fa="pc", n.iter=100,
+            show.legend=FALSE, main="Scree plot with parallel analysis")
+
+PC <- principal(mydata, nfactors=1)
+PC
+PC$values
+
+RFM_FIN_52$scoresACP<-PC$scores
+biplot(PC)
+
+RFM_FIN_52$RFM<-paste(RFM_FIN_52$R,RFM_FIN_52$Fr,RFM_FIN_52$M)
+TF<-unique(cbind(RFM_FIN_52$scoresACP,RFM_FIN_52$RFM))
+RFM_tabla<-as.data.frame(table(RFM_FIN_52$RFM))
+Deciles_ACP<-as.data.frame(quantile(RFM_FIN_52$scoresACP,probs = seq(0.1,1,0.1)))
+Deciles_ACP$RFM<-TF[,2][match(Deciles_ACP[,1],TF[,1])]
+colnames(Deciles_ACP)<-c("Score","RFM")
+write.csv(RFM_tabla,"RFM_FREC.csv")
+write.csv(Deciles_ACP,"Deciles_ACP.csv")
+write.csv(RFM_FIN_52,"RFM_FIN_52.csv")
+
+```
+
