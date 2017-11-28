@@ -8,7 +8,7 @@ Introduccion
 ========================================================
 
 Autoarima
-
+ 
 El objetivo de este documento es para dar una breve explicacion de la aplicacion que se desarrollara. 
 
 La aplicacion consiste en tomar la base de datos del producto interno bruto (PIB) de la Comision economica para America Latina y el Caribe (CEPAL) y realizar un modelo ARIMA para cada pais de America Latina y el Caribe, ademas, realizar un pronostico del PIB para tres periodos. A continuacion, se explicara de manera breve los pasos que se realizarian para cada pais.
