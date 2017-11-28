@@ -1,0 +1,64 @@
+Pronosticos
+========================================================
+author: Rai Rivera
+date: 
+autosize: true
+
+Introduccion
+========================================================
+
+Autoarima
+
+El objetivo de este documento es para dar una breve explicacion de la aplicacion que se desarrollara. 
+
+La aplicacion consiste en tomar la base de datos del producto interno bruto (PIB) de la Comision economica para America Latina y el Caribe (CEPAL) y realizar un modelo ARIMA para cada pais de America Latina y el Caribe, ademas, realizar un pronostico del PIB para tres periodos. A continuacion, se explicara de manera breve los pasos que se realizarian para cada pais.
+
+Pasos
+========================================================
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(forecast)
+library(readxl)
+aplicacion <- read_excel("aplicacion.xlsx")
+attach(aplicacion)
+```
+En primer lugar, cabe senalar que la base de datos se encuentra en terminos anuales en dolares de Estados Unidos para cada pais, desde 1990 hasta 2016. 
+
+Primero se le aplica la serie de tiempo a los datos de cada pais y se realiza el grafico. Se ha tomado de ejemplo al pais Antigua y Barbuda
+
+MODELO
+========================================================
+
+```{r, echo=FALSE}
+AyBts <- ts(`Antigua y Barbuda`, start = 1990, frequency = 1)
+plot(AyBts)
+```
+
+MODELO ARIMA
+
+Para fines practicos, se utilizara el paquete "Forecast" y de esta manera emplear la opcion autoarima y poder realizar el modelo para cada pais, como se presenta a continuacion
+
+MODELO PARTE 2
+========================================================
+```{r}
+AyBtsa <- auto.arima(AyBts)
+summary(AyBtsa)
+```
+
+La opcion autoarima realiza la modeliazacion optima para la serie de cada pais de manera automatica en base a ciertos parametros pre-establecidos, ademas el paquete forcaste nos permite realizar el pronostico de este modelo. El pronostico realizado sera para tres periodos
+
+MODELO PARTE 3
+========================================================
+
+```{r}
+AyBF <- forecast(AyBtsa,3)
+plot(AyBF)
+```
+
+MODELO PARTE 4
+========================================================
+
+```{r}
+summary(AyBF)
+```
