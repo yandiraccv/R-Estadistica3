@@ -1,0 +1,454 @@
+---
+title: Optimización de Contactos Telefónicos en Gestión de Cobranza mediante
+  un Modelo Multinomial de Mejor Horario de Llamada
+author: "Andrés Carrera"
+date: "15 de agosto de 2017"
+output:
+  ioslides_presentation:
+    css: prueba.css
+    incremental: yes
+    smaller: yes
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# 1. INTRODUCCIÓN
+## Gestión de Cobranza
+Es una etapa fundamental en la administración de portafolios de crédito masivos, no solo desde el punto de vista del proceso de contacto con el cliente, sino desde la perspectiva operativa de la recaudación, dado que si no se cuenta con las herramientas que permitan un proceso ágil y efectivo, probablemente se genere un desincentivo por parte del cliente para el pago de sus obligaciones.
+
+- Las estrategias usuales en gestión de cobranza se basan en segmentación de carteras por días mora y tipo de producto y en utilización de canales de contacto como llamadas telefónicas, visitas de campo, envío de SMS o mails con el fin de obtener una respuesta positiva por parte del cliente para el cumplimiento de sus obligaciones.
+<div align="center">
+![](Canales.jpg)
+</div>
+
+- Debido al costo la gestión de cobranza se realiza con mayor prioridad por el canal telefónico y para ello, se definen los denominados árboles de gestión que son parametrizables por tipo de empresa.
+
+## Árbol de Gestión Telefónica
+- El árbol de gestión telefónica, incorpora acciones desde el proceso de marcado hasta el manejo de las objeciones por parte del gestor, con esto se logra una estandarización tanto en los procesos de llamadas como en los resultados de la gestión y se obtienen indicadores para cada acción.
+<div align="center">
+![](arbol_gestion.jpg)
+</div>
+
+## Indicadores de Gestión
+
+- Barrido de Cartera
+$$\%barrido=100*\frac{\#gestionados}{\# asignados}$$
+- Tasa de Conexión
+$$\%tasa\_de\_conexion=100*\frac{\# conexiones}{\# llamadas\_totales}$$
+- Tasa de Contactos Efectivo
+<div align="center">
+$$\%tasa\_de\_contactos\_efectivos=100*\frac{\# contactos\_efectivos}{\# conexiones}$$
+</div>
+
+## Indicadores de Recuperación
+- Tasa de Compromisos de Pago
+<div align="center">
+$$\%compromisos\_de\_pago=100*\frac{\# compromisos\_de\_pago}{\# contactos\_efectivos}$$
+</div>
+
+- Tasa de Compromisos Cumplidos
+<div align="center">
+$$\%cumplimiento\_compromisos\_pago=100*\frac{\# pagos\_realizados}{\# compromisos\_de\_pago}$$
+</div>
+
+# 2. OPTIMIZACIÓN EN GESTIÓN TELEFÓNICA
+<div class="white">
+Las instituciones dedicadas a cobranzas enfrentan un desafío común y
+constante: *cobrar más rápido y mejor sin gastar más.*
+
+Tanto en venta como en cobranza, el *aumento de la contactabilidad* 
+entrega beneficios directos al negocio, simplemente por los 
+ahorros en recursos que es posible generar y por el aumento neto 
+de negocios que se pueden lograr.
+</div>
+
+## Optimización de contactabilidad
+¿Cómo aumentar las tasas de contactabilidad?
+
+Intuitivamente, es natural aplicar la lógica de llamar a un cliente a la misma hora
+que se lo ha contactado en otras ocasiones, sin embargo, ¿cómo aplicarlo en una lista de 100.000 clientes?. ¿Qué pasa con aquellos que no se han contactado previamente?.
+
+- En 2015, Alemania, estudios observacionales anteriores mostraron el beneficio de llamar en momentos en que se había tenido éxito en el pasado ganancias modestas de eficiencia medidas en número de intentos de llamada necesarios hasta el primer contacto, pero sin ganancias en la eficiencia para obtener un respuesta positiva por el cliente. 
+
+- En 2013, EEUU, se propone un método para producir un score que indique el mejor momento para usar un canal para un cliente específico, este score puede basarse en datos históricos de los clientes y el método puede ser lo suficientemente flexible para manejar variables de distintos niveles de disponibilidad de datos.
+
+# 3. CONSTRUCCIÓN DE UN MODELO DE MEJOR HORA DE LLAMADA (BEST TIME TO CALL)
+<div class="white">
+La solucion más conocida en el ámbito de las plataformas de generación de contactos es la de Best Time To Call, que apunta principalmente al ahorro de recursos y a la automatización de servicios.
+</div>
+
+## Metodología
+El querer estimar el mejor momento u horario para ponerse en contacto con un
+cliente lleva directamente a considerar más de dos posibilidades, es decir nos enfrentamos a un problema de respuesta multicategórica o multinomial. Por ejemplo, cada hora desde las 7:00 horas hasta 19:00 horas se consideraría una categoría o posible hora de contacto.
+
+
+METODOLOGÍA:
+
+- Definición de la ventana de muestreo
+- Definición de la variable dependiente (multicategorica)
+- Selección de variables explicativas
+- Estimación del modelo
+- Resultados y validación
+
+##Formulación del Modelo de Regresión Logística Multinomial
+- La opción que ha venido dando mejores resultados para estimar modelos con variable dependiente cualitativa con más de dos categorías, además de ser menos complicada en su interpretación, es la regresión logística multinomial.
+
+- Los modelos multinomiales se analizan tomando una de las categorías de la variable
+dependiente como categoría de referencia o categoría pivote, y se modelan varias
+ecuaciones simultáneamente, una para cada una de las restantes categorías respecto a
+la de referencia, por lo que se tendrán $k-1$ transformaciones logit: 
+
+- Sean $Y$ una variable de respuesta politómica con más de dos categorías de respuesta $Y_1,Y_2,…,Y_k$ y $X=\{x_1,x_2,…,x_n\}$ un conjunto de covariables  observadas, las probabilidades de respuesta están dadas por
+
+- <div align="center">
+$p_{j'}(x)=\frac{\exp\left(\sum\limits_{s=0}^{n}b_{sj'}x_s\right)}{1+\sum\limits_{j=1}^{k-1}\exp\left(\sum\limits_{s=0}^{n}b_{sj}x_s\right)}\hspace{0.5cm} \forall j'=1,...,k-1$
+</div>
+- <div align="center">
+$p_k=\frac{1}{1+\sum\limits_{j=1}^{k-1}\exp\left(\sum\limits_{s=0}^{n}b_{sj}x_s\right)}$ siendo $\sum\limits_{j=1}^kp_j(x)=1$.
+</div>
+
+## Selección de Variables Explicativas
+En este caso, para el desarrollo del modelo de regresión logística se cuenta con una
+gran cantidad de datos, es por esto que viene la necesidad de realizar una selección de las variables explicativas, para esto, se separan las variables numéricas continuas de las variables categóricas y se usan estadísticos e índices para medir el poder predictivo de cada una de las variables.
+
+- Medidas de Separación o Divergencia (Para variable numéricas continuas):
+  - Kolmogorov-Smirnov (KS)
+  - Anderson Darling
+
+- Medidas de Asociación (Variables categóricas):
+  - Coeficiente de Contingencia de Pearson (Independencia $\chi^2$) 
+  - Valor de Infomración (IV)
+
+- Árboles de Decisión
+
+## Prueba de Kolmogorov-Smirnov
+La prueba de KS busca la mayor diferencia en las distribuciones empíricas $\widehat{F}$ de dos muestras.
+
+Dadas una variable con dos respuestas posible $y\in\{1,2\}$ y una variable explicativa $x_s$ se define el estadístico KS de la siguiete manera.
+
+<div align="center">
+$$KS_s = \max_a|\widehat{F}_{s,1}(a)-\widehat{F}_{s,2}(a)|$$
+</div>
+
+<div align="center">
+$$KS_s= \max_a\left|\frac{\sum\limits_{i=1}^{N_1}1\{x_{s,1,i}\leq a\}}{N_1}-\frac{\sum\limits_{i=1}^{N_2}1\{x_{s,2,i}\leq a\}}{N_2}\right|$$
+</div>
+
+donde $\widehat{F}_{s,k}$ es la función de distribución empírica de $x_s$ cuando $y=k$, $N_k$ es el número de observaciones en la categoría $k$ y $x_{s,k,i}$ es la i-ésima muestra de $x_s$ cuando la variable respuesta es igual a k.
+
+## Generalización del estadístico KS para más de dos categorías
+Hay dos características del estadístico de la prueba KS que se pueden aprovechar para
+extenderlo a al nivel multinomial:
+
+- El estadístico KS se ajusta a la definición de una métrica de distancia.
+
+- Debido a que los valores de las funciones de distribución empírica están en el intervalo [0,1], los valores del estadístico KS también están en el intervalo [0,1].
+
+- Se define KSM como la suma ponderada de los valores de KS de todas $\binom{k}{2}$ combinaciones por variable. Los pesos se toman proporcionales al tamaño total de la muestra, de modo que la medida KSM está dada por
+<div align="center">
+$$KSM_s=\sum\limits_{k=1}^{K}\sum_{k\neq k'}\frac{N_k+N_{k'}}{N(K-1)}KS_s(k,k')$$
+</div>
+donde $KS_s(k,k')$ es el valor del estadístico KS al comparar las distribuciones de una variable $x_s$ cuando la variable respuesta es $k$ o $k'$ y $N$ es el tamaño total de la muestra.
+
+
+## Validación del Modelo Multinomial
+- Para estimar los coeficientes del modelo de regresión multinomial, se usa el método de máxima verosimilitud que consiste en encontrar los valores de los coeficientes que maximicen la probabilidad de obtener los valores de la variable dependiente en función de los datos proporcionados por la muestra.
+
+- Dado que el modelo multinomial se puede ver como varios modelos logit binarios,
+para validarlo se usa: 
+  - Multicolinealidad
+  - Estadístico de Wald
+  - KS y KSM
+  - Área bajo la curva ROC (AUROC)
+
+## Área bajo la curva ROC (Receiver Operating Characteristics)
+El área bajo el ROC (AUROC: area under the curve ROC) es un criterio de evaluación de desempeño estándar en problemas de reconocimiento de patrones.
+
+El caso de dos categorías es muy conocido, con dos elementos fuera de las diagonales $r_{12}$ y $r_{21}$, conocidos como falsos negativos y falsos positivos respectivamente, y dos elementos diagonales $r_{11}$ y $r_{22}$ las verdaderas tasas positivas y verdaderas negativas. En este caso se obtiene un gráfico de las sensibilidad vs 1-espesificidad.
+
+<div class="columns-2">
+![](mat_confu.jpg)
+
+![](roc.jpg)
+</div>
+
+## Extensión del AUROC al caso Multinomial
+- Para extender la medida AUC al caso multinomial o multiclas, se clasifican covariables $x$ dentro de las categorías $Y_1,Y_2,...,Y_k$ de la variable dependiente $Y$. 
+- Cada categoría tiene una distribución condicional $g(x|Y_j)$ y una probabilidad $p(Y_j)$. 
+- La asignación de las categorías se basa en la regla de Bayes, la cual asigna cada individuo su probabilidad más alta:
+
+- <div align="center">
+$p(Y_j|x)=\frac{p(Y_j)g(x|Y_j)}{p(Y_1)g(x|Y_1)+p(Y_2)g(x|Y_2)+...+p(Y_k)g(x|Y_k)}$
+</div>
+<div align="center">
+$argmax_{j=1}^k p(Y_j|x)$
+</div>
+
+- En la práctica, se desconocen las distribuciones condicionales de las categorías. 
+
+- Por tanto, usando las probabilidades estimadas el modelo de regresión multinomial, cada categoría tendrá una probabilidad de ocurrencia $p_j(x)$ y así cada individuo le corresponderá 
+<div align="center">
+$\max_{j=1}^k p_j(x)$.
+</div>
+
+## VUS (Volumen Under the Surface)
+- La extensión del AUC al caso multinomial lleva al cálculo de el volumen bajo la superficie del hyperplano ROC. En este caso, se considera solamente las dimensiones ROC correspondientes a los elementos diagonales de la matriz de confusión. El VUS (Volumen Under the Surface) simplificado se puede escribir como:
+
+- <div align="center">
+$$VUS=\int ... \int\int r_{11}dr_{22}dr_{33} ... dr_{kk}$$
+</div>
+
+- Esta medida permite evaluar la clasificación sobre todos los puntos responsables de las dimensiones ROC correspondientes a los elementos de la diagonal de la matriz de confusión. 
+
+- El VUS es similar al AUC en que si la clasificación es buena, resultará en un VUS alto y clasificaciones más pobres en un puntaje más bajo. 
+
+
+# 4. Desarrollo y Resultados 
+<div class="white">
+El objetivo principal del modelo, es encontrar el *horario del día donde la posibilidad de contactar a un cliente sea mayor*, en otras palabras, se requiere separar aquellos que son posibles de contactar en un horario de aquellos individuos  que no es posible contactarlos en ningún horario.
+</div>
+
+## Selección de la Muestra
+- Se obtuvo información de Enero a Septiembre del 2016 del sistema principal de gestión telefónica, misma que fue minuciosamente analizada dentro del sistema de tal forma que sea consistente y válida para su uso.
+
+- Se seleccionó luna muestra formada por todos los individuos a los que se los gestionó telefónicamente en los meses de Julio y Agosto del 2016 como puntos de observación.
+- <div align="center">
+![](ptos_obs.jpg)
+</div>
+
+- Se toman dos muestras aleatorias, una para modelamiento que consta del 60% de los datos iniciales y otra de validación que consta del 40% de los datos iniciales.
+
+## Ventanas de Tiempo
+Se definen las ventanas de tiempo de comportamiento y de desempeño.
+<div align="center">
+![](ventanas.jpg)
+</div>
+
+- Dado que la segmentación de los portafolios y la asignación de operaciones a ser gestionadas se realiza en períodos mensuales, se quiere pronosticar la probabilidad de contactar a un individuo en un horario determinado en el transcurso de un mes, por tanto la variable dependiente se define a un mes posterior al punto de observación.
+
+## Variable Dependiente
+La variable dependiente Y es una variable cualitativa con más de dos categorías,
+cada categoría es un horario del día en el cual se puede contactar telefónicamente a un cliente.
+
+- Para definir estas categorías se analizó la información de gestiones telefónicas de Enero 2016 a Septiembre 2016 tanto en conexiones efectivas y llamadas telefónicas realizadas en cada hora del día durante el mes.
+
+- <div class="center">
+  ![](conex_sep.jpg)
+</div>
+
+## Definición
+Se definen las categorías de la variable dependiente $Y$ de la siguiente manera:
+
+- 0: NC, 1: 7h-9h, 2: 9h-13h, 3: 13h-16h, 4: 16h-21h
+
+- Luego, sea $Y$ el contacto telefónico con las categorías de horario $Y_j=j$. Como se espera un aumento en la tasa de contactos efectivos cuando la tasa de conexión aumenta y realizando la menor cantidad de llamadas telefónicas posible, se define $pce_j$ el porcentaje de conexión efectiva en el horario $j$ como \[pce_j=100*\frac{\#contactos\_efectivos_j}{\#llamadas\_totales_j}\]
+
+- Se etiqueta como contactado en el horario $j$ a todos los individuos cuyo valor máximo de porcentaje de conexión efectiva corresponde al horario $j$, si el valor máximo de porcentaje de conexión efectiva es 0 se los etiqueta como no contactado en ningún horario (NC) y la variable $Y$ toma el valor de 0 con  $j=\{1,2,3,4\}$.
+$$
+     Y = \left\{
+     \begin{array}{cl}
+                        j&\mbox{si $\max\limits_{j\in\{1,2,3,4\}}$ $pce_j\neq 0$}\\
+                        0&\mbox{caso contrario}
+    \end{array}\right.
+$$
+
+
+## Distribución de la Variable Dependiente
+![](dist_Y.jpg)
+
+- Nótese que las distribuciones de individuos contactados en el día y no contactados son relatvamente cercanas, de 42% y 58% respectivamente.
+
+## Variables Explicativas
+Se consideraron tipos variables como:
+
+- Variables de comportamiento interno
+- Variables de comportamiento externo
+- Variables de gestión
+- Variables de operaciones
+
+- La base de datos final consta de 139 variables explicativas, 5 variables categóricas y 134 variables numéricas. Variable como profesión, estado civil, nacionalidad no fueron tomadas en cuenta por escasez de población o por dudas acerca de su validación.
+
+
+##Selección de Variables Numéricas Continuas
+Para cada variable numérica continua se calcula el estadístico KSM.
+
+- <div class="center">
+  ![](KSM.jpeg)
+</div>
+
+## Selección de Variables Categóricas
+Para el filtrado de variables categóricas se utiliza el coeficiente de de contingencia de Pearson.
+
+- <div class="center">
+  ![](ji_cuad.jpeg)
+</div>
+
+## Descripción de Variables Explicativas
+Luego de probar varios modelos de regresión con la categoría NC (no contactado
+en ningún horario), se obtuvo un modelo constituido por 8 variables explicativas.
+
+- num_conex: Variable numérica. Número de conexiones efectivas al punto de observación.
+- p_conex: Variable numérica. Porcentaje de conexión efectiva al punto de observación.
+- PRODUCTO: Variable dummy creada con árboles de decisión agrupada en TCF, OLLA DE ORO, MICROCREDITO.
+$$
+     PRODUCTO = \left\{
+     \begin{array}{cl}
+                        1&\mbox{si PRODUCTO=TCF}\\
+                        0&\mbox{caso contrario}
+    \end{array}\right.
+$$
+
+- DIAGESTION: Variable dummy creada con árboles de decisión, que contiene los días donde hubo mayor conexión efectiva al punto de observación, agrupada en
+* IS (Inicio de Semana): Lunes y Martes
+* MS (Mitad de Semana): Miércoles y Jueves
+* FD (Fin de Semana): Viernes y Sábado
+
+## Descripción de Variables Explicativas
+$$
+     DIAGESTION = \left\{
+     \begin{array}{cl}
+                        0&\mbox{si DIAGESTION=IS}\\
+                        1&\mbox{caso contrario}
+    \end{array}\right.
+$$
+
+- max_porc_conex_6M: Variable numérica. Máximo de los porcentajes de conexión
+efectiva en los últimos seis meses.
+
+- num_conex_2M: Variable numérica. Número de conexiones efectivas en los
+últimos dos meses.
+
+- rsaldo_inicial_2M_6M: Variable numérica. Razón entre el saldo inicial dos
+meses atrás antes del punto de observación y el saldo inicial seis meses atrás antes
+del punto de observación.
+$$
+     rsaldo\_inicial\_2M\_6M = \left\{
+     \begin{array}{cl}
+                        \frac{saldo\_ini\_2M}{saldo\_ini\_6M}&\mbox{si saldo_ini_6M>0}\\
+                        ln\_saldo\_ini\_2M&\mbox{caso contrario}
+    \end{array}\right.
+$$
+
+- min_num_conex_4M: Variable numérica. Mínimo de conexiones efectivas en los últimos cuatro meses.
+
+## Multicolinealidad
+- Para medir el grado de multicolinealidad se utiliza el índice IC definido a anteriormente, en este caso se tiene
+
+- \[IC=\sqrt{\frac{\lambda_{máx}}{\lambda_{min}}}=\sqrt{\frac{2.588709}{0.3585685}}=2.686925\]
+
+- por tanto se puede concluir que el modelo no presenta problemas de multicolinealidad.
+
+## Estadístico KS
+En esta etapa se analiza la máxima diferencia entre las distribuciones empíricas de
+la probabilidad de contacto efectivo estimada en cada categoría de horario, dada por
+el estadístico KS y la medida KSM.
+
+<div class="columns-2">
+  ![Modelamiento 0,5960](ks1316.jpeg)
+
+  ![Validación 0,5929](ks1316v.jpeg)
+</div>
+
+## Área Bajo la Curva ROC
+<div class="columns-2">
+  ![Modelamiento 16-21h](roc1621.jpeg)
+
+  ![Validación 16-21h](roc1621v.jpeg)
+</div>
+
+- Existe una probabilidad de 0,831 de que la probabilidad estimada de contactar a un individuo de en el horario de 16-21pm sea mayor que la probabilidad estimada de un individuo de no contactarlo en ningún horario, elegidos aleatoriamente.
+
+## Medidas de Calidad de Discriminación
+<div align="center">
+  ![](medidas.jpg)
+</div>
+
+<div align="center">
+ ![](medidas2.jpg)
+</div>
+## Tablas de Clasificación
+Se analiza la proporción de individuos clasificados correctamente por el modelo y se calcula como el cociente entre el número de observaciones clasificadas correctamente y el tamaño muestral N. 
+
+<div class="columns-2">
+  ![](confu_79v.jpg)
+  
+  ![](confu_913v.jpg)
+  
+  ![](confu_1316v.jpg)
+  
+  ![](confu_1621v.jpg)
+</div>
+
+- Un individuo es clasificado correctamente por el modelo cuando su valor observado de la variable respuesta Y $(Y_1,Y_2,…,Y_k)$ coincide con su valor estimado por el modelo.
+
+- ![](confu_multv.jpg)
+
+## Tablas Performance
+- 7-9am
+![](tp_79v.jpg)
+- 13-16pm
+![](tp_1316v.jpg)
+
+## Porcentajes de Conexión TP
+<div class="columns-2">
+  ![](pc79v.jpeg)
+
+  ![](pc1316v.jpeg)
+</div>
+
+## Modelo de Respuesta Binaria
+Dado que
+
+\[\sum\limits_{j=1}^{k-1}p_j(x)=1-p_k(x)\]
+
+- El valor de $\sum\limits_{j=1}^{k-1}p_j(x)$ es la probabilidad de contacto efectivo en el día y $p_k(x)$ es la probabilidad de no contactar, por tanto la variable dependiente sería.
+$$
+     Y = \left\{
+     \begin{array}{cl}
+                        1&\mbox{si hubo contacto efectivo}\\
+                        0&\mbox{caso contrario}
+    \end{array}\right.
+$$
+
+## Resultados Modelo Binario
+<div class="columns-2">
+  ![0,58217](kscncv.jpeg)
+
+  ![](roccncv.jpeg)
+</div>
+
+## TP Modelo Binario
+ ![](tpcncv.jpg)
+ ![](pcncv.jpg)
+
+
+# 5. Coclusiones y Recomendaciones
+## Conclusiones y Recomendaciones
+- Tomando en cuenta las medidas de KS, AUROC y GINI el mejor horario, en términos de modelamiento es el horario de 7-9am seguido por
+  horario de 13-16pm.
+
+- Variables que no fueron tomadas en cuenta por falta de confiabilidad y por exceso de datos perdidos como estado civil, profesión, sector de residencia y variables de alta importancia que no fue posible incluir por ausencia de información como números de teléfonos activos, si el teléfono es de casa, celular u oficina, indicador si el cliente realizó una llamada al call center, tiempos de llamadas podrían aumentar el poder de discriminación del modelo entre horarios.
+
+- Para obtener mayor flexibilidad con las variables del modelo final, se recomienda tratar las k-1 regresiones logísticas de manera independiente, de este modo se pueden tratar las variables de manera más específica apoyándose en árboles de decisión donde se pueden encontrar las interacciones entre las variables que determinen el contacto efectivo en un horario determinado y así obtener variables diferentes en cada modelo logístico binomial. Esta metodología llevaría a construir otro tipo de modelo
+multinomial que podría dar mejores resultados de discriminación.
+
+## Conclusiones y Recomendaciones
+- Al sumar todas las probabilidades estimadas de las categorías de horario el resultado es la probabilidad estimada de contactar en cualquier horario, de esta forma el modelo multinomial se transforma un un modelo binomial que discrimina los
+individuos que probablemente serán contactados de los que probablemente no
+serán contactados. El uso de este modelo ayuda a la optimización en la gestión telefónica dando prioridad a los individuos con mayor probabilidad de contacto efectivo (luego de realizada la segmentación de cartera) reduciendo costos y fuerza de trabajo.
+
+- Se recomienda la creación de un modelo de score comportamiento o de cobranza que permita separar los clientes que son regulares en sus pagos de los clientes que tienen problemas con cumplir sus obligaciones, así el modelo de BTTC se centrará en la gestión de los clientes que tengan mayor probabilidad de entrar en
+default, logrando una optimización de todo el sistema de cobro.
+
+- La importancia de trabajarse con gran cantidad de datos no gira en torno a la
+cantidad de datos que se tiene, pero sí en torno al tratamiento y uso que se les da a los mismos. Al combinar grande disponibilidad de datos con herramientas estadísticas
+de gran potencia, el modelo propuesto  y en general la inteligencia y análisis de
+negocios pueden llevar a reducciones de costos, reducciones de tiempo,  desarrollo de
+nuevos productos, estrategias, ofertas optimizadas y toma de decisiones inteligentes.
+
+- La metodología planteada podría ampliarse fácilmente a otras situaciones de gestión e inteligencia de negocios tales como ventas, promociones, gestión de despacho y por tanto se espera contribuir en diferentes áreas de investigación académica aportando con una solución relevante y duradera.
+
+
