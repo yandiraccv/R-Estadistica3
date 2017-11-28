@@ -1,0 +1,44 @@
+---
+title: "Pronósticos"
+author: "Rai Rivera"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(forecast)
+library(readxl)
+aplicacion <- read_excel("aplicacion.xlsx")
+attach(aplicacion)
+```
+
+## AUTOARIMA
+
+El objetivo de este documento es para dar una breve explicación de la aplicación que se desarrollará. 
+
+La aplicación consiste en tomar la base de datos del producto interno bruto (PIB) de la Comisión económica para América Latina y el Caribe (CEPAL) y realizar un modelo ARIMA para cada país de América Latina y el Caribe, además, realizar un pronóstico del PIB para tres periodos. A continuación, se explicará de manera breve los pasos que se realizarían para cada país.
+
+En primer lugar, cabe señalar que la base de datos se encuentra en terminos anuales en dólares de Estados Unidos para cada país, desde 1990 hasta 2016. 
+
+Primero se le aplica la serie de tiempo a los datos de cada país y se realiza el gráfico. Se ha tomado de ejemplo al país Antigua y Barbuda
+```{r cars}
+AyBts <- ts(`Antigua y Barbuda`, start = 1990, frequency = 1)
+plot(AyBts)
+```
+
+## MODELO ARIMA
+
+Para fines prácticos, se utilizará el paquete "Forecast" y de esta manera emplear la opción autoarima y poder realizar el modelo para cada país, como se presenta a continuación
+
+```{r}
+AyBtsa <- auto.arima(AyBts)
+summary(AyBtsa)
+```
+
+La opción autoarima realiza la modeliazación optima para la serie de cada país de manera automática en base a ciertos parametros pre-establecidos, ademas el paquete forcaste nos permite realizar el pronóstico de este modelo. El pronóstico realizado será para tres periodos
+
+```{r}
+AyBF <- forecast(AyBtsa,3)
+plot(AyBF)
+summary(AyBF)
+```
