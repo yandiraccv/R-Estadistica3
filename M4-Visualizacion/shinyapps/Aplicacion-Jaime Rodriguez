@@ -1,0 +1,66 @@
+
+#Jaime Rodríguez
+
+library(shiny)
+library(tidyverse)
+library(DT)
+library(readxl)
+base1 <- read_excel("~/RClase/Base de Datos/SBAC17_micro_627960_20170823_XLS.xlsx")
+
+
+
+View(base1)
+names(base1)
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+   
+  
+   
+   
+   tabsetPanel(tabPanel("Datos", 
+                        titlePanel("Evaluacion Educativa"),
+                        fluidRow(column(DT::dataTableOutput("evaluacion"),width=12))
+                        ),
+               tabPanel(selectInput("Provincia",label = "Ingrese la provincia",choices = base1$X__10,
+                                    
+                                    selected = "Seleccionar")
+                                      )
+                                      )
+                        
+               
+  
+      )
+   
+
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+   
+ output$evaluacion<-DT::renderDataTable(
+   DT::datatable({
+     base1
+   },
+   filter = "top",
+   selection='multiple',
+   style='bootstrap'
+   
+   
+ ))
+ 
+ Provincia <- eventReactive(input$control,{
+   
+   input$Provincia
+   
+ })
+ 
+ 
+ 
+ output$Provincia <- renderText({
+   
+   paste0("Su provincia es ", Provincia())
+ })
+   }
+
+
+# Run the application 
+shinyApp(ui = ui, server = server)
