@@ -1,0 +1,151 @@
+---
+title: "Programación Lineal"
+author: "Jaime Rodríguez"
+date: "26 November 2017"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Programación Lineal
+
+La Programación Lineal corresponde a un algoritmo a través del cual se resuelven situaciones reales en las que se pretende identificar y resolver dificultades para aumentar la productividad respecto a los recursos (principalmente los limitados y costosos), aumentando así los beneficios. El objetivo primordial de la Programación Lineal es optimizar, es decir, maximizar o minimizar funciones lineales en varias variables reales con restricciones lineales (sistemas de inecuaciones lineales), optimizando una función objetivo también lineal.
+
+##2
+
+Los resultados y el proceso de optimización se convierten en un respaldo cuantitativo de las decisiones frente a las situaciones planteadas. Decisiones en las que sería importante tener en cuenta diversos criterios administrativos como:  
+
+ * Los hechos  
+ * La experiencia   
+ * La intuición     
+ * La autoridad  
+
+## 3
+
+El primer paso para la resolución de un problema de programación lineal consiste en la identificación de los elementos básicos de un modelo matemático, estos son: 
+Función Objetivo 
+Variables 
+Restricciones 
+El siguiente paso consiste en la determinación de los mismos, para lo cual proponemos seguir la siguiente metodología: 
+
+![METODOLOGIA LP](https://image.jimcdn.com/app/cms/image/transf/none/path/s075f076504dfea8d/image/i981ee7c37af31691/version/1410532815/image.png)
+
+
+
+
+##1.2.METODOLOGIA
+###1.2.1.LA FUNCIÓN OBJETIVO
+La función objetivo tiene una estrecha relación con la pregunta general que se desea responder. Sí en un modelo resultasen distintas preguntas, la función objetivo se relacionaría con la pregunta del nivel superior, es decir, la pregunta fundamental. Así por ejemplo, si en una situación se desean minimizar los costos, es muy probable que la pregunta de mayor nivel sea la que se relacione con aumentar la utilidad en lugar de un interrogante que busque hallar la manera de disminuir los costos. 
+
+<center>![FUNCION OBJETIVO](https://image.jimcdn.com/app/cms/image/transf/none/path/s075f076504dfea8d/image/i1e3d67a08de1ac03/version/1410625745/funcion-objetivo.png)</center>
+
+
+##  1.2.2.VARIABLES DE DECISION
+Similar a la relación que existe entre objetivos específicos y objetivo general se comportan las variables de decisión respecto a la función objetivo, puesto que estas se identifican partiendo de una serie de preguntas derivadas de la pregunta fundamental. Las variables de decisión son en teoría factores controlables del sistema que se está modelando, y como tal, estas pueden tomar diversos valores posibles, de los cuales se precisa conocer su valor óptimo, que contribuya con la consecución del objetivo de la función general del problema. 
+
+
+<center>![VARIABLES DE DECISION](https://image.jimcdn.com/app/cms/image/transf/none/path/s075f076504dfea8d/image/idd68258b516009b1/version/1410534085/programacion-lineal-variables-de-decision.png)</center>
+
+
+##1.2.3.LAS RESTRICCIONES
+Cuando hablamos de las restricciones en un problema de programación lineal, nos referimos a todo aquello que limita la libertad de los valores que pueden tomar las variables de decisión.  
+
+
+La mejor manera de hallarlas consiste en pensar en un caso hipotético en el que decidiéramos darle un valor infinito a nuestras variables de decisión, por ejemplo, ¿qué pasaría si en un problema que precisa maximizar sus utilidades en un sistema de producción de calzado decidiéramos producir una cantidad infinita de zapatos? Seguramente ahora nos surgirían múltiples interrogantes, como por ejemplo: 
+
+
+¿Con cuánta materia prima cuento para producirlos? 
+¿Con cuánta mano de obra cuento para fabricarlos? 
+¿Pueden las instalaciones de mi empresa albergar tal cantidad de producto? 
+¿Podría mi fuerza de mercadeo vender todos los zapatos? 
+¿Puedo financiar tal empresa? 
+Pues bueno, entonces habríamos descubierto que nuestro sistema presenta una serie de limitantes, tanto físicas, como de contexto, de tal manera que los valores que en un momento dado podrían tomar nuestras variables de decisión se encuentran condicionados por una serie de restricciones. 
+
+##1.3.EJEMPLO
+Una pequeña empresa vende dos productos, denominados producto 1 y producto 2. Cada tonelada de producto1 consume 30 horas de trabajo, y una del Producto 2 consume 20 horas de trabajo. La empresa tiene un máximo de 2.700 horas de trabajo para el período considerado. En cuanto a las horas de máquina, cada tonelada de productos 1 y 2 consume 5 y 10 horas de máquina, respectivamente. Hay 850 horas de máquina disponibles.
+Cada tonelada de producto 1 produce 20$ de beneficio, mientras que el producto 2 rinde 60 dólares por cada tonelada vendida. Por razones técnicas, la empresa debe producir un mínimo de 95 toneladas en total entre ambos productos. Necesitamos saber cuántas toneladas de producto 1 y 2 se deben producir para maximizar el beneficio total.
+
+##1.3.1.RESOLUCION
+
+Los costos de estas variables son 20 y 60, respectivamente. Por lo tanto, la función objetivo se define multiplicando cada variable por su coeficiente de costo correspondiente
+
+Las limitaciones de este LP son:  
+
+• Una restricción WH(work hours) que hace que la cantidad total de horas de trabajo utilizadas en el Producto 1 y Producto 2, que es igual a 30P1 + 20P2, sea menor o igual a 2.700 horas.
+
+• Una restricción MH(machine hours) similar que hace que las horas totales de la máquina 5P1 + 10P2 sean inferiores o iguales a 850.
+
+•Una restricción PM que hace que las unidades totales producidas y vendidas P1 + P2 sean mayores o iguales a 95.  
+
+Juntando todo esto, y considerando que las variables de decisión no son negativas, el LP que maximiza el beneficio es:
+
+MAX z = 20P1 + 60P2   
+s.t. WH) 30P1 + 20P2 ≤ 2700   
+MH 5P1 + 10P2 ≤ 850   
+PM) P1 + P2 ≥ 95   
+P1 ≥ 0, P2 ≥ 0
+
+
+## LP EN R
+
+Para realizar la solución en R Studio se installa las siguientes librerías y paquetes:
+
+
+```{r ,include=TRUE,echo=TRUE}
+library("lpSolve")
+library("lpSolveAPI", character.only=TRUE)
+library("ggplot2")
+```
+
+Después definimos nuestros parámetros, en este caso la función objetivo, la matriz de las restricciones, los signos de las ecuaciones definidas anteriormente y los valores del lado dereho de las ecuaciones.
+
+```{r, include=TRUE,echo=TRUE}
+#defining parameters
+obj.fun <- c(20, 60) 
+constr <- matrix(c(30, 20, 5, 10, 1, 1), ncol = 2, byrow= TRUE) 
+constr.dir <- c("<=", "<=", ">=") 
+rhs <- c(2700, 850, 95)
+```
+
+##GRAFICA
+Además se puede graficar el área de la región factible, para eso despejamos una variable en función de la otra.
+
+```{r, include=TRUE,echo=TRUE}
+fun1 <- function(x) 2700/20 -30/20*x
+fun2 <- function(x) 850/10 -5/10*x
+fun3 <- function(x) 95 -1*x
+fun4 <- function(x) 4900/60 -20/60*x
+x1 = seq(0,200)
+mydf = data.frame(x1, y1=fun1(x1), y2=fun2(x1),y3= fun3(x1), y4=fun4(x1))
+mydf <-  transform(mydf, z = pmax(y1,pmin(y2,y3,y4)))
+ggplot(mydf, aes(x = x1)) + 
+  geom_line(aes(y = y1), colour = 'blue') +
+  geom_line(aes(y = y2), colour = 'green') +
+  geom_line(aes(y = y3), colour = 'red') +
+  geom_line(aes(y = y4), colour = 'yellow') +
+  geom_ribbon(aes(ymin=y1,ymax = z), fill = 'gray60')
+```
+
+##RESULTADO
+Finalmente ingresamos el código para saber la función objetivo. En este caso es maximizar la utilidad y saber cuánto debemos producir de cada producto.
+```{r}
+prod.sol <- lp("max", obj.fun, constr, constr.dir, rhs, compute.sens = TRUE)
+prod.sol
+prod.sol$solution
+```
+ Para maximizar la utilidad de la empresa (4900 $) se deben producir 20 P1 Y 75 P2.
+ 
+Producto1 | Producto 2 | Utilidad
+-- | ---- | --
+20|75| 4900
+
+## REFERENCIAS
+1.<https://www.ingenieriaindustrialonline.com/herramientas-para-el-ingeniero-industrial/investigaci%C3%B3n-de-operaciones/programaci%C3%B3n-lineal/>
+2.<file:///C:/Users/prodriguez/AppData/Local/Packages/Microsoft.MicrosoftEdge_8wekyb3d8bbwe/TempState/Downloads/20-73-3-PB.pdf>
+
+3.<https://stackoverflow.com/questions/26697936/plot-inequalities-in-r>
+
+
