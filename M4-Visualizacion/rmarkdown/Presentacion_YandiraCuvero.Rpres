@@ -1,0 +1,185 @@
+# Se ha publicado esta presentación bajo el siguiente enlace
+# http://rpubs.com/yandiraccv/Muestreo_Clase1
+
+Taller de mustreo
+========================================================
+author:   Yandira Cuvero
+date:     2017 - 11 - 30
+width:    1500
+height:   1000
+transition: concave
+font-family: 'Helvetica'
+
+Contenido
+========================================================
+
+En esta clase estudiaremos:
+
+- Componentes del muestreo
+- Marco muestral
+- Revisión rápida de R
+- Tipos de muestreo
+
+Elementos del muestreo
+========================================================
+- **Población objetivo**
+
+  La totalidad de los elementos bajo discusión y sobre los cuales se desea contar con información se conoce como población objetivo. 
+- **Muestra**
+
+  Se llama muestra a cualquier subconjunto de la población objetivo.
+- **Unidad de muestreo**
+
+  Es el objetivo a ser seleccionado en la muestra que permitirá el acceso a la unidad de observación. 
+  
+- **Unidad de observación**
+
+  Es el objetivo sobre el que finalmente se realiza la medición. 
+  
+- **Variable de interés**
+
+  Es la característica propia de los individuos sobre la que se realiza la inferencia para resolver los objetivos de la investigación.
+  
+Muestras
+========================================================
+- **No probabilísticas**
+  No permiten cuantificar el error de muestreo. Ejemplos de este caso:
+  + Cuotas
+  
+        La versión no probabilística del muestreo estratificado.
+  + Conveniencia
+  
+        Los individuos empleados en la investigación se seleccionan porque están fácilmente disponibles.
+  + Voluntarios
+  
+        Los individuos, voluntariamente, suministra información sin ser seleccionado.
+  
+- **Probabilísticas**
+  + Son las únicas en las que se puede cuantificar el error de muestreo. 
+  + Son las únicas que permiten expandir los resultados a toda la población. 
+
+[Para saber más...](https://www.netquest.com/blog/es/blog/es/muestreo-probabilistico-o-no-probabilistico-ii)
+
+
+Muestreo
+========================================================
+El **muestreo** trata, con investigaciones parciales sobre la población, inferir los resultados sobre la población completa.
+
+
+Es el **error** que resulta al investigar solo una parte de la población. 
+
+#ventajas
+- Los costos del muestreo son inferiores a los de un censo.
+- Los tiempos para obtener la muestra son menores.
+
+Una buena muestra refleja de manera muy cercana las características de interés de la población evaluada. 
+
+Marco de muestreo
+========================================================
+**Variable de interés** Es la característica propia de los individuos sobre la que se realiza la inferencia para resolver los objetivos de la investigación. 
+
+**Unidad de muestreo** es el elemento de la población a investigar y la unión de todas ellas forma la población a investigar.
+
+**Marco muestral** es una lista de las unidades de muestreo, el cual se utiliza para seleccionar una parte de la población, denominada muestra. 
+
+Un **buen marco muestral** cumple las siguientes características:
+- Toda unidad de la población está incluida en el marco muestral.
+- Toda unidad solo aparece una vez.
+- No incluye elementos erróneamente clasificados como parte de la población objetivo. 
+
+El marco muestral ideal
+========================================================
+- Tiene las mismas características que "un buen marco muestral".
+- Las unidades cuentan con información tanto de la variable de interés como de variables adicionales.
+- Permite identificar subconjuntos para los que se requieren estimadores con precisión y confianza. 
+- Construir subconjuntos que faciliten el control operativo y aprovechen mejor el tamaño de muestra. 
+- Incluye variables que permiten asignar probabilidades y que mejore el proceso de selección. 
+- Controlar los costos y el error reduciendo la dispersión de la muestra. 
+- Etc. 
+
+
+
+Ejemplo: Marco muestral
+========================================================
+
+Consideremos un estudio en el que buscamos determinar las características de las flores de lirio, 
+la cual se divide en tres tipos: setosa, versicolor y virginica. 
+[Para saber más...](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/iris.html)
+
+```{r}
+dim(iris)  #dimensión de la base
+head(iris) #primeros elementos de la base
+```
+
+Ejemplo: Marco muestral
+========================================================
+
+Al construir el marco muestral se debe evitar el sesgo de selección el cual ocurre cuando una parte de la población objetivo no está en el marco muestral. La muestra se sesga porque es más fácil seleccionar una unidad que otras o las unidades seleccionadas no representan a la población. 
+
+
+```{r, echo=FALSE, fig.align="center", out.width = '75%'}
+
+library(ggplot2)
+ggplot(iris, aes(Sepal.Length, fill = Species)) + geom_bar()
+
+```
+
+***
+
+```{r}
+#tipos dentro de una variable categórica
+levels(as.factor(iris$Species))
+```
+
+```{r}
+lirios <- iris
+lirios$id <- 1:150
+lirios[1:5,4:6]
+```
+
+
+Diseños simples y complejos de muestreo
+========================================================
+Se consideran diseños de muestreo simple los siguientes:
+- Muestreo aleatorio simple
+- Muestreo aleatorio por conglomerados
+- Muestreo aleatorio estratificado
+- Muestreo en dos etapas
+- Muestreo sistemáticos
+
+Diseños de muestreo complejos son los que combinan dos o más diseños simples. 
+
+Muestreo aleatorio simple
+========================================================
+
+Consiste en seleccionar n unidades de manera completamente aleatoria de la población N. Puede realizarse con o sin reposición. En el muestreo con reposición las unidades de la población pueden figurar más de una vez en la muestra. En el muestreo sin reposición, cada unidad de la muestra sólo puede figurar una vez en ella. 
+
+<div align="center">
+<img src="IMG1.png",  width=800 height=800>
+</div>
+
+***
+En R el código correspondiente es:
+```{r}
+#asignación de semilla
+set.seed(20170704) 
+sample(lirios$id, size = 6, replace = FALSE)
+sample(lirios$id, size = 6, replace = TRUE)
+```
+
+Muestreo por conglomerados
+========================================================
+Las unidades de la población se dividen en grupos llamados clusters o conglomerados formando estos una nueva población (de unidades agregadas). Para seleccionar la muestra de estas nuevas unidades, se eligen conglomerados (por ejemplo, por muestreo aleatorio simple) y la muestra de unidades resulta de censar a todas las unidades dentro del conglomerado. 
+
+<div align="center">
+<img src="IMG2.png",  width=500 height=500>
+</div>
+
+***
+```{r}
+set.seed(20170701)
+x <- 1:7 ; x
+sample(x, size = 3, 
+       replace = FALSE)
+```
+
