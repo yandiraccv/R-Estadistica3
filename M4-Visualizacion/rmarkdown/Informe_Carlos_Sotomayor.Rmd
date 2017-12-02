@@ -1,0 +1,117 @@
+---
+title: "Informe Taller Markdown"
+author: "Carlos Sotomayor"
+date: "29 de noviembre de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Taller Series Temporales
+La base de datos para realizar el taller es la siguiente:
+
+- Base PIB Trimestral que he hemos utilizado en diversos ejemplos en la clase 
+
+
+**Cargamos la serie Pib**
+```{r pib}
+setwd("C:/Users/User/Documents/Rstudio/CursoRModulo3/TallerM3") 
+pib <- read.csv("pib.csv")
+library(stats)
+d<- dim(pib)
+pib_trim <- ts(pib$PIB2007[5:d[1]], start=(c(2002,1)), frequency=4)
+plot.ts(pib_trim)
+
+
+
+```
+
+## Estimar un ciclo suavizado
+
+Considerando  el factor lambda de baja y alta frecuencia con el filtro de Hodrick-Presscott 
+
+```{r}
+library(mFilter)
+DesAlto.hp=hpfilter(pib_trim,type = "lambda", freq = 677.13)
+DesBajo.hp=hpfilter(pib_trim,type = "lambda", freq = 1)
+plot(DesAlto.hp$cycle)
+lines(DesBajo.hp$cycle, col="red")
+
+```
+
+## Es estacionaria y tiene tendencia
+```{r}
+plot(stl(pib_trim,"per"))
+```
+
+
+## Entonces diferenciamos
+```{r}
+diff_pib_trim=diff(pib_trim)
+```
+
+
+## Aqui vemos ya que es estacionaria en su media y no hay tendencia
+```{r}
+plot(stl(diff_pib_trim,"per"))
+```
+
+
+## Funciones FAS, FAP al pib diferenciado
+- Vemos en la funcion ACF que los resagos no decresen exponencialmente a 0
+por lo tanto tendra un valor 0 para medias mobiles.
+
+- Vemos en la funcion PACF que el primer resago se va volviendo nula
+por lo tanto tendra un valor de 1 para la autocorrelacion
+```{r}
+library(astsa)
+acf2(ts(diff_pib_trim,frequency = 1))
+```
+
+Por lo tanto definiremos el modelo arima así
+```{r}
+mod<- arima(pib_trim,order = c(2, 1, 0))
+acf(residuals(mod))
+pacf(residuals(mod))
+```
+
+## Prueba Ljung-Box
+```{r}
+Box.test(residuals(mod),type = "Ljung-Box")
+```
+
+
+### Veamos los reciduables del modelo elevado al cuadrado para ver problemas en la varianza 
+```{r}
+r2=resid(mod)^2
+acf2(r2)
+```
+
+
+## Hacemos la Predicción
+```{r}
+mod_Predict <- predict(mod, n.ahead=3)
+mod_Predict
+```
+
+Con arima El pib trimestral subira en los 3 ultimos trimestres del 2017 
+
+## Hacer intervalos de confianza a un 95% del error estandard
+```{r}
+U <- mod_Predict$pred + 2*mod_Predict$se
+L <- mod_Predict$pred - 2*mod_Predict$se
+ts.plot(pib_trim, mod_Predict$pred, U, L, col=c(1,2,4,4), lty = c(1,1,2,2))
+```
+
+
+## Modelo Sarima
+```{r}
+model=sarima(pib_trim, 2,1,0,0,1,0,4)
+
+sarima.for(pib_trim, 3, 2,1,0,0,1,0,4)
+```
+
+Con sarima El pib trimestral subira en los 3 ultimos trimestres del 2017 :
+
