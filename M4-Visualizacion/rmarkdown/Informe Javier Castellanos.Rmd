@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Presentación en R Markdown de Información del Sistema Financiero
-
+ 
 A continuación se presenta un análisis de la cartera global, así como de la cartera por tipo de crédito: consumo, microcrédito, comercial y vivienda; descrita para cada uno de los segmentos que componen el **Sistema Financiero: Bancos Tradicionales, Bancos de Microfinanzas y Cooperativas.** 
 
 También, se presenta un análisis de la morosidad global y por tipo de crédito, para cada uno de los segmentos del Sistema Financiero antes descritos.
