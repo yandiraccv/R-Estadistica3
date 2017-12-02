@@ -1,0 +1,132 @@
+---
+title: "Trabajo 1 Mod. 4"
+author: "Julio Cruz"
+date: "27 de noviembre de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## SERIES DE TIEMPO UNA MIRADA A LOS PRONOSTICOS
+## Notas sobre Pronósticos
+
+Los pronósticos se utilizan en forma constante en diversos campos: economÍa, finanzas, mercadeo, medio ambiente, ingeniería. Una finalidad es proveer una guÍa para las decisiones que deben tomarse. Algunos ejemplos en estos campos pueden ser los siguientes.  
+1. Planeación y Control de Operaciones. Por ejemplo, las decisiones de producción de un artículo con base en los pronósticos de ventas. Es posible por ejemplo, detectar una disminucIÓon en la tendencia de ventas que conlleve a reducir la producción, o al
+contrario.  
+2. En Mercadeo la decisión de invertir en publicidad puede depender de pronósticos de ventas.
+
+## Notas sobre Pronósticos
+
+3. En Economía. Las decisiones del Banco Central, por ejemplo para el control de la inflación, requieren el pronóstico y el examen del comportamiento de ciertas variables macroeconómicas, como el PIB, la tasa de desempleo, el IPC, las tasas de interés a distintos plazos, activas y pasivas.
+4. En Economía los pronósticos sobre ciclos econ ómicos de recesión y expansión para guía de aumento o disminución de las tasas interbancarias.
+5. En Planeación. Los pronósticos de demanda de viviendas, en los diferentes rangos, para orientar políticas de uso del suelo.
+
+## Notas sobre Pronósticos
+
+6. En Planeación. Los pronósticos de gastos sirven para definir los presupuestos futuros.
+7. En Planeación. Los pronósticos de evolución de casos de enfermedades contingencias de salud. Aunque en casos como epidemias los modelos son series no lineales.
+8. En Planeación. El pronóstico de consumo de energía eléctrica domiciliaria es fundamental para las decisiones de generación.
+9. En Turismo. El pronósticos de número de turistas mensuales para determinar la demanda
+hotelera.
+10. En EpidemiologÍa y Medio ambiente. La vigilancia de los niveles de contaminantes en el aire tiene como herramienta fundamental las series de tiempo. Pero adicionalmente el efecto de estos niveles sobre la salud.
+
+## EJEMPLO DE PROYECCIÓN
+
+Se procederá al pronóstico del conusmo de leche 
+
+PROCESO DE  ESTRACCION , PROCESAMIENTO  Y PRONOSTICO
+
+carga de librerias 
+
+```{r eval=F}
+library(mFilter)
+library(astsa)
+library(forecast)
+library(tseries)
+library(CombMSC)
+library(foreign)
+library(sarima)
+library(snow)
+```
+
+```{r cars}
+series_practica_comodities <- read.csv("series_practica_comodities_1.csv", 
+                                       sep=";",dec = ",")
+```
+
+## Vista de series
+
+```{r}
+series_practica_comodities
+```
+
+## Transformacion a serie temporal 
+
+```{r}
+d=dim(series_practica_comodities)
+icom=ts(series_practica_comodities[24:104,2],start=c(2010,1),
+        frequency=12)# dos opciones toda la serie [.2)] parte de la serie 10:100
+plot(icom)
+```
+
+## Pruebas
+
+```{r}
+icom_com=decompose(icom,type = "additive")
+plot(icom_com)
+```
+
+## Identificacion del modelo
+
+```{r}
+mod1=arima(icom, order = c(1,1,1))
+mod1
+
+mod2=arima(icom, order = c(1,1,0))
+mod2
+
+mod3=arima(icom, order = c(0,1,1))
+mod3
+
+```
+
+## Residuos
+
+```{r}
+acf(residuals(mod2))
+pacf(residuals(mod2))
+
+acf(residuals(mod3))
+pacf(residuals(mod3))
+```
+
+## Prueba autocorrelacion
+
+```{r}
+r2<-resid(mod2)^2
+r2
+```
+
+## Grafica 
+
+```{r}
+acf((r2))
+```
+
+## Prediccion Predict
+
+
+```{r}
+proye_1 <- predict(mod2, n.ahead=12)
+proye_1
+U <- proye_1$pred + 2*proye_1$se # el 2 es nivel de confinaza por el error estandar
+L <- proye_1$pred - 2*proye_1$se # el 2 es nivel de confinaza por el error estandar
+ts.plot(icom, proye_1$pred, U, L, col=c(1,2,4,4), lty = c(1,1,2,2))
+```
+
+
+
+
+
