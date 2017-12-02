@@ -1,65 +1,66 @@
-
 #Jaime Rodríguez
 
 library(shiny)
-library(tidyverse)
+#library(tidyverse)
 library(DT)
-library(readxl)
-base1 <- read_excel("~/RClase/Base de Datos/SBAC17_micro_627960_20170823_XLS.xlsx")
 
+# base1 <- readxl::read_excel("C:/Users/crbdl/Desktop/SBAC17_macroind_20170824_XLS/SBAC17_macroinde_2222_20170824.xlsx", 
+#                             sheet = "PROVINCIA", skip = 2)
+# 
+# save(base1, file = "base1.Rdata")
+load(url("https://raw.githubusercontent.com/RUsersGroup-Ecuador/R-Estadistica3/master/M4-Visualizacion/shinyapps/base1.Rdata"))
 
-
-View(base1)
-names(base1)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-   
   
-   
-   
-   tabsetPanel(tabPanel("Datos", 
-                        titlePanel("Evaluacion Educativa"),
-                        fluidRow(column(DT::dataTableOutput("evaluacion"),width=12))
-                        ),
-               tabPanel(selectInput("Provincia",label = "Ingrese la provincia",choices = base1$X__10,
-                                    
-                                    selected = "Seleccionar")
-                                      )
-                                      )
-                        
-               
   
-      )
-   
+  
+  
+  tabsetPanel(tabPanel("Datos", 
+                       titlePanel("Evaluacion Educativa"),
+                       fluidRow(column(DT::dataTableOutput("evaluacion"),width=12))
+  ),
+  tabPanel(selectInput("Provincia",label = "Ingrese la provincia",choices = base1$Provincia,
+                       
+                       selected = "Seleccionar"),
+           hr(),
+           textOutput("Provincia"),
+           hr(),
+           DT::dataTableOutput("filtro")
+  )
+  )
+  
+  
+  
+)
+
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-   
- output$evaluacion<-DT::renderDataTable(
-   DT::datatable({
-     base1
-   },
-   filter = "top",
-   selection='multiple',
-   style='bootstrap'
-   
-   
- ))
- 
- Provincia <- eventReactive(input$control,{
-   
-   input$Provincia
-   
- })
- 
- 
- 
- output$Provincia <- renderText({
-   
-   paste0("Su provincia es ", Provincia())
- })
-   }
+  
+  output$evaluacion<-DT::renderDataTable(
+    DT::datatable({
+      base1
+    },
+    filter = "top",
+    selection='multiple',
+    style='bootstrap'
+    ))
+  
+  output$Provincia <- renderText({
+    paste0("Su provincia es ", input$Provincia)
+  })
+  
+  output$filtro<-DT::renderDataTable(
+    DT::datatable({
+      base1 %>% filter(Provincia==input$Provincia) %>% t()
+    },
+    filter = "top",
+    selection='multiple',
+    style='bootstrap'
+    ))
+}
 
 
 # Run the application 
