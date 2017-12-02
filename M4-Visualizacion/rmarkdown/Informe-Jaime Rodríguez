@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ##1.1.DESCRIPCION GENERAL
 
 La Programación Lineal corresponde a un algoritmo a través del cual se resuelven situaciones reales en las que se pretende identificar y resolver dificultades para aumentar la productividad respecto a los recursos (principalmente los limitados y costosos), aumentando así los beneficios. El objetivo primordial de la Programación Lineal es optimizar, es decir, maximizar o minimizar funciones lineales en varias variables reales con restricciones lineales (sistemas de inecuaciones lineales), optimizando una función objetivo también lineal. 
-
+ 
 Los resultados y el proceso de optimización se convierten en un respaldo cuantitativo de las decisiones frente a las situaciones planteadas. Decisiones en las que sería importante tener en cuenta diversos criterios administrativos como:  
 
  * Los hechos  
