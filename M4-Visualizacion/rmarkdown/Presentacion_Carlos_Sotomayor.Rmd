@@ -1,0 +1,102 @@
+---
+title: "Presentación"
+author: "Carlos Sotomayor"
+date: "29 de noviembre de 2017"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##Universidad Técnica Particular de Loja
+![INGENIERÍA EN INFORMÁTICA](https://vallejoespinoza.files.wordpress.com/2013/06/utpl.jpg) 
+
+
+
+## Diferencias de la vista 4+1 desde UML
+
+![Modelo 4 vistas + 1](C:\Users\User\Desktop\foro\imagenes/1diferencias_tabla.jpg "Title")
+
+El modelo "4+1" de Kruchten, es un modelo de vistas dise?ado por el profesor Philippe Kruchten y que encaja con el estandar "IEEE 1471-2000" (Recommended Practice for Architecture Description of Software-Intensive Systems ) que se utiliza para describir la arquitectura de un sistema software intensivo basado en el uso de múltiples puntos de vista.
+
+## VISTA LÓGICA
+     **DIAGRAMA DE CLASES**
+Los diagramas de clases colaboran en lo referente al análisis. Permiten al analista hablarle a los clientes en su propia terminolog?a, lo cual hace posible que los
+clientes indiquen importantes detalles de los problemas que requieren ser resueltos.
+
+![](C:\Users\User\Desktop\foro\imagenes/2clase1.png "Title")
+
+![](C:\Users\User\Desktop\foro\imagenes/2clase2.png "Title")
+
+## VISTA LÓGICA
+     **DIAGRAMA DE ESTADOS**
+Un diagrama de estados se enfoca en los cambios de estado en un solo objeto. Un rect?ngulo de v?rtices redondeados
+representa a un estado, y una línea continua con una punta de flecha representa
+una transici?n de un estado a otro.
+
+![](C:\Users\User\Desktop\foro\imagenes/3diagramaEstados.png "Title")
+
+## VISTA LÓGICA
+     **DIAGRAMA DE COLABORACIÓN**
+Un diagrama de colaboraciones es una extensión de uno de objetos. Además de las relaciones
+entre objetos, el diagrama de colaboraciones muestra los mensajes que se env?an
+los objetos entre sí. Por lo general, evitar? la multiplicidad dado que podr?a ser fuente
+de confusión.
+
+![](C:\Users\User\Desktop\foro\imagenes/4diagramaColaboracion.png "Title")
+
+## VISTA DE PROCESOS
+     **DIAGRAMA DE ACTIVIDAD**
+Un diagrama de actividades ha sido diseñado para mostrar una visión
+simplificada de lo que ocurre durante una operaci?n 0 proceso. Es una extensión de
+un diagrama de estados.
+
+![](C:\Users\User\Desktop\foro\imagenes/5actividad.png "Title")
+
+## VISTA DE PROCESOS
+     **DIAGRAMA DE SECUENCIA**
+Los diagramas de clases y los de objeto representan informaci?n estática. No obstante,
+en un sistema funcional los objetos interact?an entre s?, y tales interacciones suceden
+con el tiempo. El diagrama de secuencias UML muestra la mec?nica de la interacci?n con
+base en tiempos.
+
+![](C:\Users\User\Desktop\foro\imagenes/7secuencia.png "Title")
+
+## VISTA DE DESARROLLO
+     **DIAGRAMA DE COMPONENTES**
+el diagrama de componentes es el que se enfoca en una arquitectura de software del sistema
+este representa a un elemento real, un componente de software.
+Estos componentes se encuentran en las computadoras, no en la mente del analista.
+
+![](C:\Users\User\Desktop\foro\imagenes/8componentes.png "Title")
+
+## VISTA DE DESARROLLO
+     **DIAGRAMA DE PAQUETES**
+Un diagrama de paquetes que muestra los principales
+segmentos de funcionalidad del sistema. Cada paquete representar? un segmento y
+contendrá casos de uso que detallarán de qué se trata cada segmento de funcionalidad.
+
+![](C:\Users\User\Desktop\foro\imagenes/9paquetes.png "Title")
+
+## VISTA DE FÍSICA
+     **DIAGRAMA DE DESPLIEGUE**
+Los diagramas de despliegue est?n formados por varias formas UML. Las cajas 
+tridimensionales, conocidas como nodos, representan los elementos b?sicos de
+software o hardware, o nodos, en el sistema.
+
+![](C:\Users\User\Desktop\foro\imagenes/10despliegue.png "Title")
+
+## VISTA DE ESCENARIO
+     **DIAGRAMA DE CASOS DE USO**
+El caso de uso es una estructura que ayuda a los analistas a trabajar con los usuarios para
+determinar la forma en que se usar? un sistema. Con una colecci?n de casos de uso se
+puede hacer el bosquejo de un sistema en términos de lo que los usuarios intenten hacer
+con él.
+
+![](C:\Users\User\Desktop\foro\imagenes/11diagrama_caso_de_uso.png "Title")
+
+![](C:\Users\User\Desktop\foro\imagenes/11casosdeuso2.png "Title")
